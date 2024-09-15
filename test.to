@@ -1,0 +1,29 @@
+include "graphics.to";
+
+make bool running = true;
+
+make var window = createWindow("Dosato!", 1000, 1000);
+
+make int x = 0;
+make int y = 0;
+
+
+do {
+    do updateState();
+
+    set running = false when (ifQuit());
+
+    do setColor(window, 255, 0, 0, 255);
+    do drawSquare(window, x/50, y/50, 20, 20);
+    
+    set x-- when (getKey(4));
+    set x++ when (getKey(7));
+    set y++ when (getKey(22));
+    set y-- when (getKey(26));
+
+    do render(window);
+    do setColor(window, 0, 0, 0, 255);
+    do clearWindow(window);
+} while (running);
+
+do closeWindow(window);
