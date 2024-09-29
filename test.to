@@ -4,8 +4,20 @@ make bool running = true;
 
 make var window = createWindow("Dosato!", 1000, 1000);
 
-make int x = 0;
-make int y = 0;
+make var sprite = createSprite(window, "elephant.png");
+
+make object spriteSize = getSpriteSize(sprite);
+
+make double x = 0;
+make double y = 0;
+
+make long lastTime = time();
+make long clockTime = 0;
+make long fps = 0;
+
+make double dt = 0.0;
+
+make double speed = 10.0;
 
 
 do {
@@ -13,17 +25,36 @@ do {
 
     set running = false when (ifQuit());
 
-    do setColor(window, 255, 0, 0, 255);
-    do drawSquare(window, x/50, y/50, 20, 20);
+    make object mouse_pos = getMousePosition();
+
+    do setColor(window, 255, 0, 0, 255) when (getMouse(keys->"MiddleMouse")) else setColor(window, 0, 255, 0, 255);
+    do drawSprite(window, sprite, x - spriteSize->"width"/2, y - spriteSize->"height"/2, spriteSize->"width", spriteSize->"height");
+
+    do drawLine(window, mouse_pos->"x", mouse_pos->"y", x, y);
     
-    set x-- when (getKey(4));
-    set x++ when (getKey(7));
-    set y++ when (getKey(22));
-    set y-- when (getKey(26));
+    set x -= speed * dt when (getKey(keys->"KeyA"));
+    set x += speed * dt when (getKey(keys->"KeyD"));
+    set y += speed * dt when (getKey(keys->"KeyS"));
+    set y -= speed * dt when (getKey(keys->"KeyW"));
+
+    set x = clamp(x, 0, 1000);
+    set y = clamp(y, 0, 1000);
 
     do render(window);
     do setColor(window, 0, 0, 0, 255);
     do clearWindow(window);
+
+    set fps++;
+
+    do if (time() != lastTime) then {
+        do sayln("FPS: " + fps);
+        set fps = 0;
+        set lastTime = time();
+    };
+
+    set dt = (clock() - clockTime) / (1000.0 / 60.0);
+    set clockTime = clock();
+
 } while (running);
 
 do closeWindow(window);

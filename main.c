@@ -1,29 +1,37 @@
 #include "main.h"
 
 #define MAX_WINDOWS 1024
+#define MAX_TEXTURES 2048
 
 
 DosatoFunctionMapList functions;
 
 SDL_Window* instance_windows[MAX_WINDOWS];
 SDL_Renderer* instance_renderers[MAX_WINDOWS];
+SDL_Texture* textures[MAX_TEXTURES];
 int window_count;
+int texture_count;
 
 bool key_pressed[SDL_NUM_SCANCODES];
 bool key_down[SDL_NUM_SCANCODES];
 bool key_released[SDL_NUM_SCANCODES];
+
+#define SDL_MOUSEBUTTONS 6
+
+bool mouse_pressed[SDL_MOUSEBUTTONS];
+bool mouse_down[SDL_MOUSEBUTTONS];
+bool mouse_released[SDL_MOUSEBUTTONS];
 
 bool quit = false;
 
 
 void init() {
     // SDL2 initialization
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
-        exit(1);
-    }
+    SDL_Init(SDL_INIT_EVERYTHING);
 
+    // Initialize counts
     window_count = 0;
+    texture_count = 0;
 
     // Initialize the functions list
     init_DosatoFunctionMapList(&functions);
@@ -72,6 +80,38 @@ void init() {
         .name = "drawSquare",
         .function = drawSquare
     });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "createSprite",
+        .function = createSprite
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getSpriteSize",
+        .function = getSpriteDimensions
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "drawSprite",
+        .function = drawSprite
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "drawLine",
+        .function = drawLine
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getMousePosition",
+        .function = getMousePosition
+    }); 
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getMouse",
+        .function = getMouseHeld
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getMouseDown",
+        .function = getMousePressed
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getMouseReleased",
+        .function = getMouseReleased
+    });
 }
 
 Value createWindow(ValueArray args, bool debug) {
@@ -80,7 +120,7 @@ Value createWindow(ValueArray args, bool debug) {
     }
 
     if (window_count >= MAX_WINDOWS) {
-        printf("ERROR:\n Maximum number of windows reached.\n");
+        printf("ERROR:\nMaximum number of windows reached.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -102,7 +142,7 @@ Value createWindow(ValueArray args, bool debug) {
     );
 
     if (instance_windows[window_count] == NULL) {
-        printf("ERROR:\n Could not create window.\n");
+        printf("ERROR:\nCould not create window.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -124,7 +164,7 @@ Value closeWindow(ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        printf("ERROR:\nInvalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -172,6 +212,17 @@ Value updateState (ValueArray args, bool debug) {
                 key_released[event.key.keysym.scancode] = true;
                 key_down[event.key.keysym.scancode] = false;
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                mouse_pressed[event.button.button] = true;
+                mouse_released[event.button.button] = false;
+                mouse_down[event.button.button] = true;
+                break;
+            case SDL_MOUSEBUTTONUP:
+                mouse_pressed[event.button.button] = false;
+                mouse_released[event.button.button] = true;
+                mouse_down[event.button.button] = false;
+                break;
+            
         }
     }
 
@@ -187,7 +238,7 @@ Value getKey (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\n Invalid key id.\n");
+        printf("ERROR:\nInvalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -203,7 +254,7 @@ Value getKeyDown (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\n Invalid key id.\n");
+        printf("ERROR:\nInvalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -219,7 +270,7 @@ Value getKeyReleased (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\n Invalid key id.\n");
+        printf("ERROR:\nInvalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -243,7 +294,7 @@ Value setColor(ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        printf("ERROR:\nInvalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -271,7 +322,7 @@ Value clearScreen (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        printf("ERROR:\nInvalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -289,7 +340,7 @@ Value renderWindow (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        printf("ERROR:\nInvalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -308,7 +359,7 @@ Value drawSquare (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        printf("ERROR:\nInvalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -327,4 +378,186 @@ Value drawSquare (ValueArray args, bool debug) {
     SDL_RenderFillRect(instance_renderers[window_id.as.intValue], &rect);
 
     return UNDEFINED_VALUE;
+}
+
+Value createSprite (ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG_COPY(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        printf("ERROR:\nInvalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value path = GET_ARG_COPY(args, 1);
+    CAST_SAFE(path, TYPE_STRING);
+
+    SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], path.as.stringValue);
+
+    if (texture == NULL) {
+        printf("ERROR:\nCould not create texture.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    textures[texture_count] = texture;
+
+    return BUILD_VALUE(TYPE_INT, intValue, texture_count++);
+}
+
+Value getSpriteDimensions (ValueArray args, bool debug) {
+    if (args.count != 1) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value texture_id = GET_ARG_COPY(args, 0);
+    CAST_SAFE(texture_id, TYPE_INT);
+
+    if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
+        printf("ERROR:\nInvalid texture id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    int w, h;
+    SDL_QueryTexture(textures[texture_id.as.intValue], NULL, NULL, &w, &h);
+
+    return buildObject(
+        2,
+        "width", BUILD_VALUE(TYPE_INT, intValue, w),
+        "height", BUILD_VALUE(TYPE_INT, intValue, h)
+    );
+}
+
+
+Value drawSprite (ValueArray args, bool debug) {
+    if (args.count != 6) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG_COPY(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        printf("ERROR:\n Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value texture_id = GET_ARG_COPY(args, 1);
+    CAST_SAFE(texture_id, TYPE_INT);
+
+    if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
+        printf("ERROR:\n Invalid texture id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value x = GET_ARG_COPY(args, 2);
+    Value y = GET_ARG_COPY(args, 3);
+    Value w = GET_ARG_COPY(args, 4);
+    Value h = GET_ARG_COPY(args, 5);
+
+    CAST_SAFE(x, TYPE_INT);
+    CAST_SAFE(y, TYPE_INT);
+    CAST_SAFE(w, TYPE_INT);
+    CAST_SAFE(h, TYPE_INT);
+
+    SDL_Rect rect = {x.as.intValue, y.as.intValue, w.as.intValue, h.as.intValue};
+
+    SDL_RenderCopy(instance_renderers[window_id.as.intValue], textures[texture_id.as.intValue], NULL, &rect);
+
+    return UNDEFINED_VALUE;
+}
+
+Value drawLine (ValueArray args, bool debug) {
+    if (args.count != 5) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG_COPY(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        printf("ERROR:\nInvalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value x1 = GET_ARG_COPY(args, 1);
+    Value y1 = GET_ARG_COPY(args, 2);
+    Value x2 = GET_ARG_COPY(args, 3);
+    Value y2 = GET_ARG_COPY(args, 4);
+
+    CAST_SAFE(x1, TYPE_INT);
+    CAST_SAFE(y1, TYPE_INT);
+    CAST_SAFE(x2, TYPE_INT);
+    CAST_SAFE(y2, TYPE_INT);
+
+    SDL_RenderDrawLine(instance_renderers[window_id.as.intValue], x1.as.intValue, y1.as.intValue, x2.as.intValue, y2.as.intValue);
+
+    return UNDEFINED_VALUE;
+}
+
+
+Value getMousePosition (ValueArray args, bool debug) {
+    if (args.count != 0) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+
+    return buildObject(
+        2,
+        "x", BUILD_VALUE(TYPE_INT, intValue, x),
+        "y", BUILD_VALUE(TYPE_INT, intValue, y)
+    );
+}
+
+Value getMouseHeld (ValueArray args, bool debug) {
+    if (args.count != 1) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value button = GET_ARG_COPY(args, 0);
+    CAST_SAFE(button, TYPE_INT);
+
+    if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
+        printf("ERROR:\nInvalid mouse button id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_down[button.as.intValue]);
+}
+
+Value getMousePressed (ValueArray args, bool debug) {
+    if (args.count != 1) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value button = GET_ARG_COPY(args, 0);
+    CAST_SAFE(button, TYPE_INT);
+
+    if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
+        printf("ERROR:\nInvalid mouse button id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_pressed[button.as.intValue]);
+}
+
+Value getMouseReleased (ValueArray args, bool debug) {
+    if (args.count != 1) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value button = GET_ARG_COPY(args, 0);
+    CAST_SAFE(button, TYPE_INT);
+
+    if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
+        printf("ERROR:\nInvalid mouse button id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_released[button.as.intValue]);
 }

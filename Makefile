@@ -7,10 +7,10 @@
 CFLAGS = -Wall -Werror
 
 # Include directories
-INCLUDES = -I./dosato_source -I./src/include
+INCLUDES = -I./dosato_source -I./src/include -I./src/include/SDL2
 
-# Linker flags with SDL2
-LDFLAGS = -L./dosato_source -ldosato_lib -L./src/lib -lmingw32 -lSDL2main -lSDL2
+# Linker flags with SDL2, SDL2_image
+LDFLAGS = -L./dosato_source -ldosato_lib -L./src/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 # Source files
 SRCS = main.c
