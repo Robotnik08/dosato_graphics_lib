@@ -124,16 +124,16 @@ Value createWindow(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value title = GET_ARG_COPY(args, 0);
-    Value width = GET_ARG_COPY(args, 1);
-    Value height = GET_ARG_COPY(args, 2);
+    Value title = GET_ARG(args, 0);
+    Value width = GET_ARG(args, 1);
+    Value height = GET_ARG(args, 2);
 
     CAST_SAFE(title, TYPE_STRING);
     CAST_SAFE(width, TYPE_INT);
     CAST_SAFE(height, TYPE_INT);
 
     instance_windows[window_count] = SDL_CreateWindow(
-        title.as.stringValue,
+        AS_STRING(title),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         width.as.intValue,
@@ -160,7 +160,7 @@ Value closeWindow(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -234,7 +234,7 @@ Value getKey (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
@@ -250,7 +250,7 @@ Value getKeyDown (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
@@ -266,7 +266,7 @@ Value getKeyReleased (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
@@ -290,7 +290,7 @@ Value setColor(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -298,10 +298,10 @@ Value setColor(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value r = GET_ARG_COPY(args, 1);
-    Value g = GET_ARG_COPY(args, 2);
-    Value b = GET_ARG_COPY(args, 3);
-    Value a = GET_ARG_COPY(args, 4);
+    Value r = GET_ARG(args, 1);
+    Value g = GET_ARG(args, 2);
+    Value b = GET_ARG(args, 3);
+    Value a = GET_ARG(args, 4);
 
     CAST_SAFE(r, TYPE_INT);
     CAST_SAFE(g, TYPE_INT);
@@ -318,7 +318,7 @@ Value clearScreen (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -336,7 +336,7 @@ Value renderWindow (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -355,7 +355,7 @@ Value drawSquare (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -363,10 +363,10 @@ Value drawSquare (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x = GET_ARG_COPY(args, 1);
-    Value y = GET_ARG_COPY(args, 2);
-    Value w = GET_ARG_COPY(args, 3);
-    Value h = GET_ARG_COPY(args, 4);
+    Value x = GET_ARG(args, 1);
+    Value y = GET_ARG(args, 2);
+    Value w = GET_ARG(args, 3);
+    Value h = GET_ARG(args, 4);
 
     CAST_SAFE(x, TYPE_INT);
     CAST_SAFE(y, TYPE_INT);
@@ -385,7 +385,7 @@ Value createSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -393,10 +393,10 @@ Value createSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value path = GET_ARG_COPY(args, 1);
+    Value path = GET_ARG(args, 1);
     CAST_SAFE(path, TYPE_STRING);
 
-    SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], path.as.stringValue);
+    SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], AS_STRING(path));
 
     if (texture == NULL) {
         printf("ERROR:\nCould not create texture.\n");
@@ -413,7 +413,7 @@ Value getSpriteDimensions (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value texture_id = GET_ARG_COPY(args, 0);
+    Value texture_id = GET_ARG(args, 0);
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
@@ -437,7 +437,7 @@ Value drawSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -445,7 +445,7 @@ Value drawSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value texture_id = GET_ARG_COPY(args, 1);
+    Value texture_id = GET_ARG(args, 1);
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
@@ -453,10 +453,10 @@ Value drawSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x = GET_ARG_COPY(args, 2);
-    Value y = GET_ARG_COPY(args, 3);
-    Value w = GET_ARG_COPY(args, 4);
-    Value h = GET_ARG_COPY(args, 5);
+    Value x = GET_ARG(args, 2);
+    Value y = GET_ARG(args, 3);
+    Value w = GET_ARG(args, 4);
+    Value h = GET_ARG(args, 5);
 
     CAST_SAFE(x, TYPE_INT);
     CAST_SAFE(y, TYPE_INT);
@@ -475,7 +475,7 @@ Value drawLine (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
@@ -483,10 +483,10 @@ Value drawLine (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x1 = GET_ARG_COPY(args, 1);
-    Value y1 = GET_ARG_COPY(args, 2);
-    Value x2 = GET_ARG_COPY(args, 3);
-    Value y2 = GET_ARG_COPY(args, 4);
+    Value x1 = GET_ARG(args, 1);
+    Value y1 = GET_ARG(args, 2);
+    Value x2 = GET_ARG(args, 3);
+    Value y2 = GET_ARG(args, 4);
 
     CAST_SAFE(x1, TYPE_INT);
     CAST_SAFE(y1, TYPE_INT);
@@ -519,7 +519,7 @@ Value getMouseHeld (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
@@ -535,7 +535,7 @@ Value getMousePressed (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
@@ -551,7 +551,7 @@ Value getMouseReleased (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {

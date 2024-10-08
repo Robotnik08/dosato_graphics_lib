@@ -1,7 +1,5 @@
-import "graphics.dll";
-
-
-make object keys = {
+import "graphics.dll"
+const object keys = {
     "KeyA": setcounter(5) - 1,
     "KeyB": counter(),
     "KeyC": counter(),
@@ -235,4 +233,4 @@ make object keys = {
     "RightMouse": 3,
     "Mouse4": 4,
     "Mouse5": 5
-};
+}

@@ -26,7 +26,6 @@ extern "C" {
 #include <math.h>
 
 #define GET_ARG(args, index) (args.values[args.count - index - 1])
-#define GET_ARG_COPY(args, index) hardCopyValue(GET_ARG(args, index))
 
 #define CAST_SAFE(value, type) \
     do { \
@@ -45,10 +44,11 @@ typedef enum {
     E_INVALID_NUMBER_LITERAL,
     E_INVALID_CHAR_LITERAL,
     E_UNCLOSED_STRING_LITERAL,
+    E_TEMPLATE_RECURSION_LIMIT,
 
     // parser errors
     E_EXPECTED_MASTER,
-    E_MISSING_SEPERATOR,
+    E_MISSING_SEPARATOR,
     E_MISSING_CLOSING_PARENTHESIS,
     E_MISSING_OPENING_PARENTHESIS,
     E_UNEXPECTED_TOKEN,
@@ -98,6 +98,7 @@ typedef enum {
     E_WRONG_NUMBER_OF_ARGUMENTS,
     E_EXPECTED_STRING_TYPE,
     E_EXPECTED_NUMBER,
+    E_CANNOT_ASSIGN_TO_CONSTANT,
 
     // standard library errors
     E_FILE_NOT_FOUND,
@@ -148,9 +149,16 @@ typedef enum {
 #define ISFLOATTYPE(type) (type == TYPE_FLOAT || type == TYPE_DOUBLE)
 
 typedef struct {
+    void* body;
+    bool marked;
+    DataType type;
+} DosatoObject;
+
+typedef struct {
     DataType type;
     bool is_variable_type; // non strict type
     bool defined;
+    bool is_constant;
     union {
         char byteValue;
         unsigned char ubyteValue;
@@ -164,16 +172,19 @@ typedef struct {
         double doubleValue;
         char boolValue;
         char charValue;
-        char* stringValue;
-        void* objectValue;
+        DosatoObject* objectValue;
     } as;
 } Value;
 
-#define UNDEFINED_VALUE (Value){ D_NULL, .defined = false, .is_variable_type = false, 0 }
-#define BUILD_EXCEPTION(e_code) (Value){ TYPE_EXCEPTION, .as.longValue = e_code, .is_variable_type = false, .defined = true }
-#define BUILD_HLT(exit_code) (Value){ TYPE_HLT, .as.longValue = exit_code, .is_variable_type = false, .defined = true }
+#define AS_STRING(value) ((char*)(value).as.objectValue->body)
+#define AS_ARRAY(value) ((ValueArray*)(value).as.objectValue->body)
+#define AS_OBJECT(value) ((ValueObject*)(value).as.objectValue->body)
 
-#define BUILD_VALUE(type, valueName, value) (Value){ type, .as.valueName = value, .defined = false, .is_variable_type = false }
+#define UNDEFINED_VALUE (Value){ D_NULL, .defined = false, .is_variable_type = false, .is_constant = false }
+#define BUILD_EXCEPTION(e_code) (Value){ TYPE_EXCEPTION, .as.longValue = e_code, .is_variable_type = false, .defined = true, .is_constant = false }
+#define BUILD_HLT(exit_code) (Value){ TYPE_HLT, .as.longValue = exit_code, .is_variable_type = false, .defined = true, .is_constant = false }
+
+#define BUILD_VALUE(type, valueName, value) (Value){ type, .as.valueName = value, .defined = false, .is_variable_type = false, .is_constant = false }
 
 /**
  * @brief Destroys a value and frees the entire object safely.
@@ -290,6 +301,17 @@ extern Value* getValueAtKey(ValueObject* object, char* key);
  */
 extern void removeFromKey(ValueObject* object, char* key);
 
+/// virtual-machine.h
+/// This part of the library is responsible for handling virtual machine gc generation and running.
+
+/**
+ * @brief Don't call this function, use the BUILD_STRING, BUILD_ARRAY, BUILD_OBJECT macros instead.
+ */
+extern DosatoObject* buildDosatoObject(void* body, DataType type, bool sweep);
+
+#define BUILD_STRING(value, trigger_sweep) (Value){ TYPE_STRING, .as.objectValue = buildDosatoObject(value, TYPE_STRING, trigger_sweep), .defined = false, .is_variable_type = false, .is_constant = false }
+#define BUILD_ARRAY(value, trigger_sweep) (Value){ TYPE_ARRAY, .as.objectValue = buildDosatoObject(value, TYPE_ARRAY, trigger_sweep), .defined = false, .is_variable_type = false, .is_constant = false }
+#define BUILD_OBJECT(value, trigger_sweep) (Value){ TYPE_OBJECT, .as.objectValue = buildDosatoObject(value, TYPE_OBJECT, trigger_sweep), .defined = false, .is_variable_type = false, .is_constant = false }
 
 /// dynamic_library_loader.h
 /// This part of the library is responsible for loading dynamic libraries and functions from them.
