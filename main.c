@@ -24,8 +24,11 @@ bool mouse_released[SDL_MOUSEBUTTONS];
 
 bool quit = false;
 
+VirtualMachine* main_vm;
+void init(VirtualMachine* vm) {
+    printf("%p\n", vm);
+    main_vm = vm;
 
-void init() {
     // SDL2 initialization
     SDL_Init(SDL_INIT_EVERYTHING);
 
