@@ -1,6 +1,7 @@
 import "graphics.dll"
-const object keys = {
-    "KeyA": setcounter(5) - 1,
+
+const keys = {
+    "KeyA": setcounter(4),
     "KeyB": counter(),
     "KeyC": counter(),
     "KeyD": counter(),
@@ -172,7 +173,7 @@ const object keys = {
     "KeyCrSel": counter(),
     "KeyExSel": counter(),
 
-    "KeyKP00": setcounter(177) - 1,
+    "KeyKP00": setcounter(176),
     "KeyKP000": counter(),
     "KeyThousandsSeparator": counter(),
     "KeyDecimalSeparator": counter(),
@@ -219,7 +220,7 @@ const object keys = {
     "KeyKPDecimal": counter(),
     "KeyKPHexadecimal": counter(),
 
-    "KeyLCtrl": setcounter(225) - 1,
+    "KeyLCtrl": setcounter(224),
     "KeyLShift": counter(),
     "KeyLAlt": counter(),
     "KeyLGUI": counter(),

@@ -19,13 +19,12 @@ make double dt = 0.0
 
 make double speed = 10.0
 
-
 do {
     do updateState()
 
     set running = false when (ifQuit())
 
-    make object mouse_pos = getMousePosition()
+    const mouse_pos = getMousePosition()
 
     do setColor(window, 255, 0, 0, 255) when (getMouse(keys->MiddleMouse)) else setColor(window, 0, 255, 0, 255)
     do drawSprite(window, sprite, x - spriteSize->width/2, y - spriteSize->height/2, spriteSize->width, spriteSize->height)
@@ -54,7 +53,6 @@ do {
 
     set dt = (clock() - clockTime) / (1000.0 / 60.0)
     set clockTime = clock()
-
 } while (running)
 
 do closeWindow(window)
