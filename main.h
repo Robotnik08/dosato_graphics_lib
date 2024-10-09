@@ -6,7 +6,7 @@
 #include <SDL2/SDL_image.h> // Include the SDL2_image library.
 
 DosatoFunctionMapList functions;
-void init();
+void init(void* vm);
 
 Value createWindow (ValueArray args, bool debug);
 Value closeWindow (ValueArray args, bool debug);

@@ -24,8 +24,10 @@ bool mouse_released[SDL_MOUSEBUTTONS];
 
 bool quit = false;
 
+void* main_vm;
+void init(void* vm) {
+    main_vm = vm;
 
-void init() {
     // SDL2 initialization
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -120,20 +122,20 @@ Value createWindow(ValueArray args, bool debug) {
     }
 
     if (window_count >= MAX_WINDOWS) {
-        printf("ERROR:\nMaximum number of windows reached.\n");
+        PRINT_ERROR("Maximum number of windows reached.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value title = GET_ARG_COPY(args, 0);
-    Value width = GET_ARG_COPY(args, 1);
-    Value height = GET_ARG_COPY(args, 2);
+    Value title = GET_ARG(args, 0);
+    Value width = GET_ARG(args, 1);
+    Value height = GET_ARG(args, 2);
 
     CAST_SAFE(title, TYPE_STRING);
     CAST_SAFE(width, TYPE_INT);
     CAST_SAFE(height, TYPE_INT);
 
     instance_windows[window_count] = SDL_CreateWindow(
-        title.as.stringValue,
+        AS_STRING(title),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         width.as.intValue,
@@ -142,7 +144,7 @@ Value createWindow(ValueArray args, bool debug) {
     );
 
     if (instance_windows[window_count] == NULL) {
-        printf("ERROR:\nCould not create window.\n");
+        PRINT_ERROR("Could not create window.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -152,7 +154,7 @@ Value createWindow(ValueArray args, bool debug) {
 
     destroyValue(&title);
 
-    return BUILD_VALUE(TYPE_INT, intValue, window_count - 1);
+    return BUILD_INT(window_count - 1);
 }
 
 Value closeWindow(ValueArray args, bool debug) {
@@ -160,11 +162,11 @@ Value closeWindow(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -234,15 +236,15 @@ Value getKey (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\nInvalid key id.\n");
+        PRINT_ERROR("Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, key_down[key.as.intValue]);
+    return BUILD_BOOL(key_down[key.as.intValue]);
 }
 
 Value getKeyDown (ValueArray args, bool debug) {
@@ -250,15 +252,15 @@ Value getKeyDown (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\nInvalid key id.\n");
+        PRINT_ERROR("Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, key_pressed[key.as.intValue]);
+    return BUILD_BOOL(key_pressed[key.as.intValue]);
 }
 
 Value getKeyReleased (ValueArray args, bool debug) {
@@ -266,15 +268,15 @@ Value getKeyReleased (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value key = GET_ARG_COPY(args, 0);
+    Value key = GET_ARG(args, 0);
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        printf("ERROR:\nInvalid key id.\n");
+        PRINT_ERROR("Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, key_released[key.as.intValue]);
+    return BUILD_BOOL(key_released[key.as.intValue]);
 }
 
 Value ifQuit(ValueArray args, bool debug) {
@@ -282,7 +284,7 @@ Value ifQuit(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, quit);
+    return BUILD_BOOL(quit);
 }
 
 Value setColor(ValueArray args, bool debug) {
@@ -290,18 +292,18 @@ Value setColor(ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value r = GET_ARG_COPY(args, 1);
-    Value g = GET_ARG_COPY(args, 2);
-    Value b = GET_ARG_COPY(args, 3);
-    Value a = GET_ARG_COPY(args, 4);
+    Value r = GET_ARG(args, 1);
+    Value g = GET_ARG(args, 2);
+    Value b = GET_ARG(args, 3);
+    Value a = GET_ARG(args, 4);
 
     CAST_SAFE(r, TYPE_INT);
     CAST_SAFE(g, TYPE_INT);
@@ -318,11 +320,11 @@ Value clearScreen (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -336,11 +338,11 @@ Value renderWindow (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -355,18 +357,18 @@ Value drawSquare (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x = GET_ARG_COPY(args, 1);
-    Value y = GET_ARG_COPY(args, 2);
-    Value w = GET_ARG_COPY(args, 3);
-    Value h = GET_ARG_COPY(args, 4);
+    Value x = GET_ARG(args, 1);
+    Value y = GET_ARG(args, 2);
+    Value w = GET_ARG(args, 3);
+    Value h = GET_ARG(args, 4);
 
     CAST_SAFE(x, TYPE_INT);
     CAST_SAFE(y, TYPE_INT);
@@ -385,27 +387,27 @@ Value createSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value path = GET_ARG_COPY(args, 1);
+    Value path = GET_ARG(args, 1);
     CAST_SAFE(path, TYPE_STRING);
 
-    SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], path.as.stringValue);
+    SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], AS_STRING(path));
 
     if (texture == NULL) {
-        printf("ERROR:\nCould not create texture.\n");
+        PRINT_ERROR("Could not create texture.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
     textures[texture_count] = texture;
 
-    return BUILD_VALUE(TYPE_INT, intValue, texture_count++);
+    return BUILD_INT(texture_count++);
 }
 
 Value getSpriteDimensions (ValueArray args, bool debug) {
@@ -413,22 +415,22 @@ Value getSpriteDimensions (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value texture_id = GET_ARG_COPY(args, 0);
+    Value texture_id = GET_ARG(args, 0);
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
-        printf("ERROR:\nInvalid texture id.\n");
+        PRINT_ERROR("Invalid texture id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
     int w, h;
     SDL_QueryTexture(textures[texture_id.as.intValue], NULL, NULL, &w, &h);
 
-    return buildObject(
+    return RETURN_OBJECT(buildObject(
         2,
-        "width", BUILD_VALUE(TYPE_INT, intValue, w),
-        "height", BUILD_VALUE(TYPE_INT, intValue, h)
-    );
+        "width", BUILD_INT(w),
+        "height", BUILD_INT(h)
+    ));
 }
 
 
@@ -437,26 +439,26 @@ Value drawSprite (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\n Invalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value texture_id = GET_ARG_COPY(args, 1);
+    Value texture_id = GET_ARG(args, 1);
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
-        printf("ERROR:\n Invalid texture id.\n");
+        PRINT_ERROR("Invalid texture id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x = GET_ARG_COPY(args, 2);
-    Value y = GET_ARG_COPY(args, 3);
-    Value w = GET_ARG_COPY(args, 4);
-    Value h = GET_ARG_COPY(args, 5);
+    Value x = GET_ARG(args, 2);
+    Value y = GET_ARG(args, 3);
+    Value w = GET_ARG(args, 4);
+    Value h = GET_ARG(args, 5);
 
     CAST_SAFE(x, TYPE_INT);
     CAST_SAFE(y, TYPE_INT);
@@ -475,18 +477,18 @@ Value drawLine (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value window_id = GET_ARG_COPY(args, 0);
+    Value window_id = GET_ARG(args, 0);
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        printf("ERROR:\nInvalid window id.\n");
+        PRINT_ERROR("Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    Value x1 = GET_ARG_COPY(args, 1);
-    Value y1 = GET_ARG_COPY(args, 2);
-    Value x2 = GET_ARG_COPY(args, 3);
-    Value y2 = GET_ARG_COPY(args, 4);
+    Value x1 = GET_ARG(args, 1);
+    Value y1 = GET_ARG(args, 2);
+    Value x2 = GET_ARG(args, 3);
+    Value y2 = GET_ARG(args, 4);
 
     CAST_SAFE(x1, TYPE_INT);
     CAST_SAFE(y1, TYPE_INT);
@@ -507,11 +509,11 @@ Value getMousePosition (ValueArray args, bool debug) {
     int x, y;
     SDL_GetMouseState(&x, &y);
 
-    return buildObject(
+    return RETURN_OBJECT(buildObject(
         2,
-        "x", BUILD_VALUE(TYPE_INT, intValue, x),
-        "y", BUILD_VALUE(TYPE_INT, intValue, y)
-    );
+        "x", BUILD_INT(x),
+        "y", BUILD_INT(y)
+    ));
 }
 
 Value getMouseHeld (ValueArray args, bool debug) {
@@ -519,15 +521,15 @@ Value getMouseHeld (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        printf("ERROR:\nInvalid mouse button id.\n");
+        PRINT_ERROR("Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_down[button.as.intValue]);
+    return BUILD_BOOL(mouse_down[button.as.intValue]);
 }
 
 Value getMousePressed (ValueArray args, bool debug) {
@@ -535,15 +537,15 @@ Value getMousePressed (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        printf("ERROR:\nInvalid mouse button id.\n");
+        PRINT_ERROR("Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_pressed[button.as.intValue]);
+    return BUILD_BOOL(mouse_pressed[button.as.intValue]);
 }
 
 Value getMouseReleased (ValueArray args, bool debug) {
@@ -551,13 +553,13 @@ Value getMouseReleased (ValueArray args, bool debug) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
-    Value button = GET_ARG_COPY(args, 0);
+    Value button = GET_ARG(args, 0);
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        printf("ERROR:\nInvalid mouse button id.\n");
+        PRINT_ERROR("Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
-    return BUILD_VALUE(TYPE_BOOL, boolValue, mouse_released[button.as.intValue]);
+    return BUILD_BOOL(mouse_released[button.as.intValue]);
 }
