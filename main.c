@@ -152,8 +152,6 @@ Value createWindow(ValueArray args, bool debug) {
 
     window_count++;
 
-    destroyValue(&title);
-
     return BUILD_INT(window_count - 1);
 }
 

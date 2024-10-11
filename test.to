@@ -50,7 +50,7 @@ do {
         set fps = 0
         set lastTime = time()
     }
-
+    
     set dt = (clock() - clockTime) / (1000.0 / 60.0)
     set clockTime = clock()
 } while (running)
