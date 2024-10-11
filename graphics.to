@@ -1,4 +1,4 @@
-import "graphics.dll"
+import "graphics"
 
 const keys = {
     "KeyA": setcounter(4),
