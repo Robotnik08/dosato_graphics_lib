@@ -399,7 +399,7 @@ Value createSprite (ValueArray args, bool debug) {
     SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], AS_STRING(path));
 
     if (texture == NULL) {
-        PRINT_ERROR("Could not create texture.\n");
+        PRINT_ERROR("Could not load texture, reading \"%s\"\n", AS_STRING(path));
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
