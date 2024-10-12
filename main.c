@@ -117,7 +117,7 @@ void init(void* vm) {
 }
 
 Value createWindow(ValueArray args, bool debug) {
-    if (args.count != 3) {
+    if (args.count != 4) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
     }
 
@@ -129,10 +129,12 @@ Value createWindow(ValueArray args, bool debug) {
     Value title = GET_ARG(args, 0);
     Value width = GET_ARG(args, 1);
     Value height = GET_ARG(args, 2);
+    Value flags = GET_ARG(args, 3);
 
-    CAST_SAFE(title, TYPE_STRING);
+    CAST_TO_STRING(title);
     CAST_SAFE(width, TYPE_INT);
     CAST_SAFE(height, TYPE_INT);
+    CAST_SAFE(flags, TYPE_INT);
 
     instance_windows[window_count] = SDL_CreateWindow(
         AS_STRING(title),
@@ -140,7 +142,7 @@ Value createWindow(ValueArray args, bool debug) {
         SDL_WINDOWPOS_UNDEFINED,
         width.as.intValue,
         height.as.intValue,
-        SDL_WINDOW_SHOWN
+        flags.as.intValue
     );
 
     if (instance_windows[window_count] == NULL) {
@@ -394,7 +396,7 @@ Value createSprite (ValueArray args, bool debug) {
     }
 
     Value path = GET_ARG(args, 1);
-    CAST_SAFE(path, TYPE_STRING);
+    CAST_TO_STRING(path);
 
     SDL_Texture* texture = IMG_LoadTexture(instance_renderers[window_id.as.intValue], AS_STRING(path));
 

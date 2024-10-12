@@ -2,7 +2,7 @@ include "graphics.to"
 
 make bool running = true
 
-make var window = createWindow("Dosato!", 1000, 1000)
+make window = createWindow(100, 1000, 1000, 0)
 
 make var sprite = createSprite(window, "elephant.png")
 
