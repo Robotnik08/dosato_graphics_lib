@@ -12,8 +12,8 @@ CFLAGS = -Wall -Werror -Wno-format
 INCLUDES = -I./dosato_source -I./src/include -I./src/include/SDL2
 
 # Linker flags
-LDFLAGS_WINDOWS = -L./dosato_source -llibdosato -L./src/lib -lmingw32
-LDFLAGS_LINUX = -L./dosato_source -ldosato -L./src/lib -lm -Wno-format -fPIC
+LDFLAGS_WINDOWS = -L./dosato_source -llibdosato -L./src/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+LDFLAGS_LINUX = -L./dosato_source -ldosato -L./src/lib -lm -Wno-format -fPIC -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 # Source files
 SRCS = main.c
