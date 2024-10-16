@@ -10,6 +10,11 @@ void init(void* vm);
 
 Value createWindow (ValueArray args, bool debug);
 Value closeWindow (ValueArray args, bool debug);
+Value getWindowData (ValueArray args, bool debug);
+Value setWindowTransform (ValueArray args, bool debug);
+Value setWindowFlags (ValueArray args, bool debug);
+Value setWindowIcon (ValueArray args, bool debug);
+Value setWindowTitle (ValueArray args, bool debug);
 Value updateState (ValueArray args, bool debug);
 Value getKey (ValueArray args, bool debug);
 Value getKeyDown (ValueArray args, bool debug);

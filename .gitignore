@@ -1,3 +1,5 @@
 .vscode
 *.o
 graphics.dll
+libdosato.dll
+libdosato.so

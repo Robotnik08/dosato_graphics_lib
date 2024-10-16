@@ -2,11 +2,11 @@ include "graphics.to"
 
 make bool running = true
 
-make window = createWindow(100, 1000, 1000, 0)
+const window = createWindow(100, 1000, 1000, window_flags->WINDOW_FULLSCREEN_DESKTOP)
 
-make var sprite = createSprite(window, "elephant.png")
+const sprite = createSprite(window, "elephant.png")
 
-make object spriteSize = getSpriteSize(sprite)
+const spriteSize = getSpriteSize(sprite)
 
 make double x = 0
 make double y = 0

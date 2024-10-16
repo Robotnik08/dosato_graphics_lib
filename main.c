@@ -47,6 +47,26 @@ void init(void* vm) {
         .function = closeWindow
     });
     write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "getWindowData",
+        .function = getWindowData
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "setWindowTransform",
+        .function = setWindowTransform
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "setWindowFlags",
+        .function = setWindowFlags
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "setWindowIcon",
+        .function = setWindowIcon
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "setWindowTitle",
+        .function = setWindowTitle
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
         .name = "updateState",
         .function = updateState
     });
@@ -179,6 +199,141 @@ Value closeWindow(ValueArray args, bool debug) {
     }
 
     window_count--;
+
+    return UNDEFINED_VALUE;
+}
+
+Value getWindowData (ValueArray args, bool debug) {
+    if (args.count != 1) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    int w, h;
+    SDL_GetWindowSize(instance_windows[window_id.as.intValue], &w, &h);
+
+    char* title = (char*)SDL_GetWindowTitle(instance_windows[window_id.as.intValue]);
+
+    int flags = SDL_GetWindowFlags(instance_windows[window_id.as.intValue]);
+
+    int x, y;
+    SDL_GetWindowPosition(instance_windows[window_id.as.intValue], &x, &y);
+
+
+    return RETURN_OBJECT(buildObject(
+        6,
+        "width", BUILD_INT(w),
+        "height", BUILD_INT(h),
+        "title", BUILD_STRING(COPY_STRING(title)),
+        "flags", BUILD_INT(flags),
+        "x", BUILD_INT(x),
+        "y", BUILD_INT(y)
+    ));
+}
+
+Value setWindowTransform (ValueArray args, bool debug) {
+    if (args.count != 5) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    Value x = GET_ARG(args, 1);
+    Value y = GET_ARG(args, 2);
+
+    Value width = GET_ARG(args, 3);
+    Value height = GET_ARG(args, 4);
+
+    CAST_SAFE(window_id, TYPE_INT);
+    CAST_SAFE(x, TYPE_INT);
+    CAST_SAFE(y, TYPE_INT);
+    CAST_SAFE(width, TYPE_INT);
+    CAST_SAFE(height, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    SDL_SetWindowPosition(instance_windows[window_id.as.intValue], x.as.intValue, y.as.intValue);
+    
+    SDL_SetWindowSize(instance_windows[window_id.as.intValue], width.as.intValue, height.as.intValue);
+
+    return UNDEFINED_VALUE;
+}
+
+Value setWindowFlags (ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    Value flags = GET_ARG(args, 1);
+
+    CAST_SAFE(window_id, TYPE_INT);
+    CAST_SAFE(flags, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    SDL_SetWindowFullscreen(instance_windows[window_id.as.intValue], flags.as.intValue);
+
+    return UNDEFINED_VALUE;
+}
+
+Value setWindowIcon (ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    Value path = GET_ARG(args, 1);
+
+    CAST_SAFE(window_id, TYPE_INT);
+    CAST_TO_STRING(path);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    SDL_Surface* icon = IMG_Load(AS_STRING(path));
+
+    if (icon == NULL) {
+        PRINT_ERROR("Could not load icon.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    SDL_SetWindowIcon(instance_windows[window_id.as.intValue], icon);
+
+    return UNDEFINED_VALUE;
+}
+
+Value setWindowTitle (ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    Value title = GET_ARG(args, 1);
+
+    CAST_SAFE(window_id, TYPE_INT);
+    CAST_TO_STRING(title);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    SDL_SetWindowTitle(instance_windows[window_id.as.intValue], AS_STRING(title));
 
     return UNDEFINED_VALUE;
 }

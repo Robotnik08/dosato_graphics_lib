@@ -1,31 +1,12 @@
-# Template library for Dosato
+# Dosato graphics library
 
-This is a template library for Dosato, a programming language.<br>
-More information about Dosato can be found [here](https://github.com/Robotnik08/cdosato).
+This readme is not complete yet! <br>
 
-## How to use
+Quick explanation on how to install: <br>
 
-This repository contains a dosato.h and dosato_lib.dll file, these might be outdated in the future, so if you want to use the latest version of Dosato you can download it from the [official repository](https://github.com/Robotnik08/cdosato).<br>
+0. clone the repository
+1. put libdosato.dll or libdosato.so in the dosato_source folder (fetch it from the dosato repositorys installer)
+2. run the makefile
+3. Fetch the graphics.dll
 
-To use this library, you need to include the dosato.h file in your project and link the dosato_lib.dll file to your project.<br>
-
-For this particular demo, use the following command to compile the program:<br>
-```bash
-make
-```
-
-This will generate the .dll file for your library.<br><br>
-
-To test and use your library from within Dosato, open your script file and use the `import` keyword to import your library.<br>
-```dosato
-import "path/to/your/library.dll";
-```
-
-After importing your library, you can use the functions defined in your library.<br>
-```dosato
-import "path/to/your/library.dll";
-
-do sayln(sumTest(5, 10));
-```
-
-The `test.to` file in contains an example of how to use this library.<br>
+Better readme coming soon! <br>
