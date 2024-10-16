@@ -231,7 +231,7 @@ Value getWindowData (ValueArray args, bool debug) {
         6,
         "width", BUILD_INT(w),
         "height", BUILD_INT(h),
-        "title", BUILD_STRING(title),
+        "title", BUILD_STRING(COPY_STRING(title)),
         "flags", BUILD_INT(flags),
         "x", BUILD_INT(x),
         "y", BUILD_INT(y)
