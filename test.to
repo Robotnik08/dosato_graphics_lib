@@ -2,50 +2,69 @@ include "graphics.to"
 
 make bool running = true
 
-const window = createWindow(100, 1000, 1000, window_flags->WINDOW_FULLSCREEN_DESKTOP)
+// Create a window with the title "Example Game" and a size of 1000x1000
+const window = createWindow("Example Game", 1000, 1000, WindowFlags->WINDOW_NONE)
 
-const sprite = createSprite(window, "elephant.png")
+// Load the sprite.png file
+const sprite = createSprite(window, "sprite.png")
 
+// Get the size of the sprite
 const spriteSize = getSpriteSize(sprite)
 
-make double x = 0
-make double y = 0
+// Set the size of the sprite to be 1/5 of the original size
+set spriteSize->width, spriteSize->height /= 5
 
+make double x, y = 0
+
+// setup the game loop
 make long lastTime = time()
-make long clockTime = 0
-make long fps = 0
-
+make long clockTime, fps = 0
 make double dt = 0.0
 
+// speed of the player
 make double speed = 10.0
 
-do {
+do { // game loop
+
+    // Important! Get the current state of the input devices
     do updateState()
 
-    set running = false when (ifQuit())
+    // ifQuit check if the player send a quit signal (close the window)
+    set running = false when ifQuit()
 
+    // Get the current mouse position
     const mouse_pos = getMousePosition()
 
-    do setColor(window, 255, 0, 0, 255) when (getMouse(keys->MiddleMouse)) else setColor(window, 0, 255, 0, 255)
+    // Change the color of the window based on mouse input (Middle mouse makes it red, otherwise green)
+    if getMouse(Keys->MiddleMouse) then setColor(window, 255, 0, 0, 255) else setColor(window, 0, 255, 0, 255)
+
+    // Draw the sprite at the player's position
     do drawSprite(window, sprite, x - spriteSize->width/2, y - spriteSize->height/2, spriteSize->width, spriteSize->height)
 
+    // Draw a line from the player to the mouse cursor
     do drawLine(window, mouse_pos->x, mouse_pos->y, x, y)
     
-    set x -= speed * dt when (getKey(keys->KeyA))
-    set x += speed * dt when (getKey(keys->KeyD))
-    set y += speed * dt when (getKey(keys->KeyS))
-    set y -= speed * dt when (getKey(keys->KeyW))
+    // Move the player based on keypresses
+    set x -= speed * dt when getKey(Keys->KeyA)
+    set x += speed * dt when getKey(Keys->KeyD)
+    set y += speed * dt when getKey(Keys->KeyS)
+    set y -= speed * dt when getKey(Keys->KeyW)
 
+    // Clamp the player's position to the window bounds
     set x = clamp(x, 0, 1000)
     set y = clamp(y, 0, 1000)
 
+    // Render the buffered graphics to the window
     do render(window)
+
+    // Clear the window to black
     do setColor(window, 0, 0, 0, 255)
     do clearWindow(window)
 
+    // Calculate the frames per second and delta time
     set fps++
 
-    do if (time() != lastTime) then {
+    if time() != lastTime then {
         do sayln("FPS: " + fps)
         set fps = 0
         set lastTime = time()
@@ -53,6 +72,7 @@ do {
     
     set dt = (clock() - clockTime) / (1000.0 / 60.0)
     set clockTime = clock()
-} while (running)
 
-do closeWindow(window)
+} while running // Stop when running is false
+
+do closeWindow(window) // Close the window when the game loop ends
