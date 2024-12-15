@@ -24,6 +24,7 @@ Value setColor (ValueArray args, bool debug);
 Value clearScreen (ValueArray args, bool debug);
 Value renderWindow (ValueArray args, bool debug);
 Value drawSquare (ValueArray args, bool debug);
+Value drawPoint (ValueArray args, bool debug);
 Value createSprite (ValueArray args, bool debug);
 Value getSpriteDimensions (ValueArray args, bool debug);
 Value drawSprite (ValueArray args, bool debug);
@@ -33,5 +34,5 @@ Value getMouseHeld (ValueArray args, bool debug);
 Value getMousePressed (ValueArray args, bool debug);
 Value getMouseReleased (ValueArray args, bool debug);
 
-
+Value toImage (ValueArray args, bool debug);
 #endif // MAIN_H

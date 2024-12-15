@@ -103,6 +103,10 @@ void init(void* vm) {
         .function = drawSquare
     });
     write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "drawPoint",
+        .function = drawPoint
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
         .name = "createSprite",
         .function = createSprite
     });
@@ -133,6 +137,10 @@ void init(void* vm) {
     write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
         .name = "getMouseReleased",
         .function = getMouseReleased
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "toImage",
+        .function = toImage
     });
 }
 
@@ -537,6 +545,30 @@ Value drawSquare (ValueArray args, bool debug) {
     return UNDEFINED_VALUE;
 }
 
+Value drawPoint (ValueArray args, bool debug) {
+    if (args.count != 3) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("%s", "Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value x = GET_ARG(args, 1);
+    Value y = GET_ARG(args, 2);
+
+    CAST_SAFE(x, TYPE_INT);
+    CAST_SAFE(y, TYPE_INT);
+
+    SDL_RenderDrawPoint(instance_renderers[window_id.as.intValue], x.as.intValue, y.as.intValue);
+
+    return UNDEFINED_VALUE;
+}
+
 Value createSprite (ValueArray args, bool debug) {
     if (args.count != 2) {
         return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
@@ -717,4 +749,33 @@ Value getMouseReleased (ValueArray args, bool debug) {
     }
 
     return BUILD_BOOL(mouse_released[button.as.intValue]);
+}
+
+Value toImage (ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+    Value path = GET_ARG(args, 1);
+    CAST_TO_STRING(path);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("%s", "Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+
+    int w, h;
+    SDL_GetWindowSize(instance_windows[window_id.as.intValue], &w, &h);
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+
+    SDL_RenderReadPixels(instance_renderers[window_id.as.intValue], NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
+
+    IMG_SavePNG(surface, AS_STRING(path));
+
+    SDL_FreeSurface(surface);
+
+    return UNDEFINED_VALUE;
 }
