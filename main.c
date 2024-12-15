@@ -142,7 +142,7 @@ Value createWindow(ValueArray args, bool debug) {
     }
 
     if (window_count >= MAX_WINDOWS) {
-        PRINT_ERROR("Maximum number of windows reached.\n");
+        PRINT_ERROR("%s", "Maximum number of windows reached.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -166,7 +166,7 @@ Value createWindow(ValueArray args, bool debug) {
     );
 
     if (instance_windows[window_count] == NULL) {
-        PRINT_ERROR("Could not create window.\n");
+        PRINT_ERROR("%s", "Could not create window.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -186,7 +186,7 @@ Value closeWindow(ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -212,7 +212,7 @@ Value getWindowData (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -229,12 +229,12 @@ Value getWindowData (ValueArray args, bool debug) {
 
     return RETURN_OBJECT(buildObject(
         6,
-        "width", BUILD_INT(w),
-        "height", BUILD_INT(h),
-        "title", BUILD_STRING(COPY_STRING(title)),
-        "flags", BUILD_INT(flags),
-        "x", BUILD_INT(x),
-        "y", BUILD_INT(y)
+        BUILD_STRING(COPY_STRING("width")), BUILD_INT(w),
+        BUILD_STRING(COPY_STRING("height")), BUILD_INT(h),
+        BUILD_STRING(COPY_STRING("title")), BUILD_STRING(COPY_STRING(title)),
+        BUILD_STRING(COPY_STRING("flags")), BUILD_INT(flags),
+        BUILD_STRING(COPY_STRING("x")), BUILD_INT(x),
+        BUILD_STRING(COPY_STRING("y")), BUILD_INT(y)
     ));
 }
 
@@ -257,7 +257,7 @@ Value setWindowTransform (ValueArray args, bool debug) {
     CAST_SAFE(height, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -280,7 +280,7 @@ Value setWindowFlags (ValueArray args, bool debug) {
     CAST_SAFE(flags, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -301,14 +301,14 @@ Value setWindowIcon (ValueArray args, bool debug) {
     CAST_TO_STRING(path);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
     SDL_Surface* icon = IMG_Load(AS_STRING(path));
 
     if (icon == NULL) {
-        PRINT_ERROR("Could not load icon.\n");
+        PRINT_ERROR("%s", "Could not load icon.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -329,7 +329,7 @@ Value setWindowTitle (ValueArray args, bool debug) {
     CAST_TO_STRING(title);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -395,7 +395,7 @@ Value getKey (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        PRINT_ERROR("Invalid key id.\n");
+        PRINT_ERROR("%s", "Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -411,7 +411,7 @@ Value getKeyDown (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        PRINT_ERROR("Invalid key id.\n");
+        PRINT_ERROR("%s", "Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -427,7 +427,7 @@ Value getKeyReleased (ValueArray args, bool debug) {
     CAST_SAFE(key, TYPE_INT);
 
     if (key.as.intValue < 0 || key.as.intValue >= SDL_NUM_SCANCODES) {
-        PRINT_ERROR("Invalid key id.\n");
+        PRINT_ERROR("%s", "Invalid key id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -451,7 +451,7 @@ Value setColor(ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -479,7 +479,7 @@ Value clearScreen (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -497,7 +497,7 @@ Value renderWindow (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -516,7 +516,7 @@ Value drawSquare (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -546,7 +546,7 @@ Value createSprite (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -574,7 +574,7 @@ Value getSpriteDimensions (ValueArray args, bool debug) {
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
-        PRINT_ERROR("Invalid texture id.\n");
+        PRINT_ERROR("%s", "Invalid texture id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -583,8 +583,8 @@ Value getSpriteDimensions (ValueArray args, bool debug) {
 
     return RETURN_OBJECT(buildObject(
         2,
-        "width", BUILD_INT(w),
-        "height", BUILD_INT(h)
+        BUILD_STRING(COPY_STRING("width")), BUILD_INT(w),
+        BUILD_STRING(COPY_STRING("height")), BUILD_INT(h)
     ));
 }
 
@@ -598,7 +598,7 @@ Value drawSprite (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -606,7 +606,7 @@ Value drawSprite (ValueArray args, bool debug) {
     CAST_SAFE(texture_id, TYPE_INT);
 
     if (texture_id.as.intValue < 0 || texture_id.as.intValue >= texture_count) {
-        PRINT_ERROR("Invalid texture id.\n");
+        PRINT_ERROR("%s", "Invalid texture id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -636,7 +636,7 @@ Value drawLine (ValueArray args, bool debug) {
     CAST_SAFE(window_id, TYPE_INT);
 
     if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
-        PRINT_ERROR("Invalid window id.\n");
+        PRINT_ERROR("%s", "Invalid window id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -666,8 +666,8 @@ Value getMousePosition (ValueArray args, bool debug) {
 
     return RETURN_OBJECT(buildObject(
         2,
-        "x", BUILD_INT(x),
-        "y", BUILD_INT(y)
+        BUILD_STRING(COPY_STRING("x")), BUILD_INT(x),
+        BUILD_STRING(COPY_STRING("y")), BUILD_INT(y)
     ));
 }
 
@@ -680,7 +680,7 @@ Value getMouseHeld (ValueArray args, bool debug) {
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        PRINT_ERROR("Invalid mouse button id.\n");
+        PRINT_ERROR("%s", "Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -696,7 +696,7 @@ Value getMousePressed (ValueArray args, bool debug) {
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        PRINT_ERROR("Invalid mouse button id.\n");
+        PRINT_ERROR("%s", "Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
@@ -712,7 +712,7 @@ Value getMouseReleased (ValueArray args, bool debug) {
     CAST_SAFE(button, TYPE_INT);
 
     if (button.as.intValue < 0 || button.as.intValue >= SDL_MOUSEBUTTONS) {
-        PRINT_ERROR("Invalid mouse button id.\n");
+        PRINT_ERROR("%s", "Invalid mouse button id.\n");
         return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
     }
 
