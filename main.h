@@ -4,6 +4,7 @@
 #include "dosato_source/dosato.h" // Include the dosato library.
 #include <SDL2/SDL.h> // Include the SDL2 library.
 #include <SDL2/SDL_image.h> // Include the SDL2_image library.
+#include <SDL2/SDL_ttf.h> // Include the SDL2_ttf library.
 
 DosatoFunctionMapList functions;
 void init(void* vm);
@@ -35,4 +36,7 @@ Value getMousePressed (ValueArray args, bool debug);
 Value getMouseReleased (ValueArray args, bool debug);
 
 Value toImage (ValueArray args, bool debug);
+
+Value createFont (ValueArray args, bool debug);
+Value drawText(ValueArray args, bool debug);
 #endif // MAIN_H

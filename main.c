@@ -1,7 +1,7 @@
 #include "main.h"
 
 #define MAX_WINDOWS 1024
-#define MAX_TEXTURES 2048
+#define MAX_TEXTURES 4096
 
 
 DosatoFunctionMapList functions;
@@ -9,8 +9,10 @@ DosatoFunctionMapList functions;
 SDL_Window* instance_windows[MAX_WINDOWS];
 SDL_Renderer* instance_renderers[MAX_WINDOWS];
 SDL_Texture* textures[MAX_TEXTURES];
+TTF_Font* fonts[MAX_TEXTURES];
 int window_count;
 int texture_count;
+int font_count;
 
 bool key_pressed[SDL_NUM_SCANCODES];
 bool key_down[SDL_NUM_SCANCODES];
@@ -30,6 +32,12 @@ void init(void* vm) {
 
     // SDL2 initialization
     SDL_Init(SDL_INIT_EVERYTHING);
+
+    // Initialize SDL_ttf
+    if (TTF_Init() == -1) {
+        PRINT_ERROR("TTF_Init: %s\n", TTF_GetError());
+        exit(1);
+    }
 
     // Initialize counts
     window_count = 0;
@@ -141,6 +149,14 @@ void init(void* vm) {
     write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
         .name = "toImage",
         .function = toImage
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "createFont",
+        .function = createFont
+    });
+    write_DosatoFunctionMapList(&functions, (DosatoFunctionMap) {
+        .name = "drawText",
+        .function = drawText
     });
 }
 
@@ -776,6 +792,84 @@ Value toImage (ValueArray args, bool debug) {
     IMG_SavePNG(surface, AS_STRING(path));
 
     SDL_FreeSurface(surface);
+
+    return UNDEFINED_VALUE;
+}
+
+Value createFont(ValueArray args, bool debug) {
+    if (args.count != 2) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value path = GET_ARG(args, 0);
+    Value size = GET_ARG(args, 1);
+
+    CAST_TO_STRING(path);
+    CAST_SAFE(size, TYPE_INT);
+
+    if (font_count >= MAX_TEXTURES) {
+        PRINT_ERROR("%s", "Maximum number of fonts reached.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    TTF_Font* font = TTF_OpenFont(AS_STRING(path), AS_INT(size));
+
+    if (font == NULL) {
+        // report error
+
+
+        PRINT_ERROR("Could not load font, reading \"%s\"\n", AS_STRING(path));
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    fonts[font_count] = font;
+
+    return BUILD_INT(font_count++);
+}
+
+Value drawText(ValueArray args, bool debug) {
+    if (args.count != 5) {
+        return BUILD_EXCEPTION(E_WRONG_NUMBER_OF_ARGUMENTS);
+    }
+
+    Value window_id = GET_ARG(args, 0);
+    CAST_SAFE(window_id, TYPE_INT);
+
+    if (window_id.as.intValue < 0 || window_id.as.intValue >= window_count) {
+        PRINT_ERROR("%s", "Invalid window id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value font_id = GET_ARG(args, 1);
+    CAST_SAFE(font_id, TYPE_INT);
+
+    if (font_id.as.intValue < 0 || font_id.as.intValue >= font_count) {
+        PRINT_ERROR("%s", "Invalid font id.\n");
+        return BUILD_EXCEPTION(E_EMPTY_MESSAGE);
+    }
+
+    Value text = GET_ARG(args, 2);
+    Value x = GET_ARG(args, 3);
+    Value y = GET_ARG(args, 4);
+
+    CAST_TO_STRING(text);
+    CAST_SAFE(x, TYPE_INT);
+    CAST_SAFE(y, TYPE_INT);
+
+    // get color of window id's renderer
+    SDL_Color color;
+    SDL_GetRenderDrawColor(instance_renderers[window_id.as.intValue], &color.r, &color.g, &color.b, &color.a);
+
+    SDL_Surface* surface = TTF_RenderText_Solid(fonts[font_id.as.intValue], AS_STRING(text), color);
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(instance_renderers[window_id.as.intValue], surface);
+
+    SDL_Rect rect = {x.as.intValue, y.as.intValue, surface->w, surface->h};
+
+    SDL_RenderCopy(instance_renderers[window_id.as.intValue], texture, NULL, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 
     return UNDEFINED_VALUE;
 }

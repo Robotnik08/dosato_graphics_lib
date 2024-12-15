@@ -8,6 +8,9 @@ const window = createWindow("Example Game", 1000, 1000, WindowFlags->WINDOW_NONE
 // Load the sprite.png file
 const sprite = createSprite(window, "sprite.png")
 
+// Load the font.ttf file
+const font = createFont("font.ttf", 24)
+
 // Get the size of the sprite
 const spriteSize = getSpriteSize(sprite)
 
@@ -43,6 +46,9 @@ do { // game loop
 
     // Draw a line from the player to the mouse cursor
     do drawLine(window, mouse_pos->x, mouse_pos->y, x, y)
+
+    // Draw text at the top Middle of the window
+    do drawText(window, font, "Hello, World!", 500, 10)
     
     // Move the player based on keypresses
     set x -= speed * dt when getKey(Keys->KeyA)
